@@ -69,6 +69,8 @@ transfer time ($e$) between computer A and C and all other messages
 (\textit{fire!} from A to B, \textit{fire out} from B to C) and events (the fire
 being extinguished) happen in a significantly shorter time.
 
+This case is demonstrated in figure \ref{fig:failure_case_1}.
+
 This results in the \textit{fire out} message for a given fire arriving before
 the corresponding \textit{fire!} message.
 
@@ -89,6 +91,8 @@ message ($E1$) and the same message being received by computer C, a new
 \textit{fire!} message ($F2$) is sent by computer A which is received at
 computer C before $E1$.
 
+This case is demonstrated in figure \ref{fig:failure_case_2}.
+
 In this case the last message received by the fire service computer C will be
 \textit{fire out} and will have arrived within $2d + e$ time units of the last
 \textit{fire!} message ($F2$).
@@ -106,7 +110,63 @@ fire engine.
 
 \section{Question 2}
 
+The use of logical clocks in the system allows the order of messages to be
+tracked within the system, this can be used by computer C to determine the
+validity of a message based on its timestamp compared to the local logical
+clock of computer C.
+
+A brief overview of the operation of such a system is shown in figure
+\ref{fig:logical_clocks}.
+
+In this design computer A sends \texttt{fire!} messages to computers B and C
+when it receives a signal from a fire detection sensor (it does not receive
+messages from either computer).
+
+Computer B receives all messages from computer A and sends \textit{fire out}
+messages to computer C when it detects that all fires are extinguished.
+
+The local logical clock ($C_{b}$) of computer B is set to $max(C_{b}, T_{m} +
+1)$ when message $m$ is received (where $T_{m}$ is the timestamp of message
+$m$).
+
+When C receives either a \textit{fire!} or \textit{fire out} message ($m$) it
+first examines the timestamp of the message ($T_{m}$), if the timestamp is equal
+to or greater than the local logical clock of computer C ($C_{c}$) then the
+message is processed as normal and $C_{c}$ is set such that $C_{c} = max(C_{c},
+T_{m} + 1)$, otherwise if $T_{m} < C_{c}$ the message is discarded as computer C
+will have already received more recent information than that described by $m$.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.4\textwidth]{out/logical_clocks.eps}
+  \caption{Use of logical clocks}
+  \label{fig:logical_clocks}
+\end{figure}
+
+TODO: table and correctness
+
+\subsection{Condition 1}
+
 TODO
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.4\textwidth]{out/logical_clocks_fc1.eps}
+  \caption{Possible violation of condition 1}
+  \label{fig:logical_clocks_fc1}
+\end{figure}
+
+\subsection{Condition 2}
+
+TODO
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.4\textwidth]{out/logical_clocks_fc2.eps}
+  \caption{Possible violation of condition 2}
+  \label{fig:logical_clocks_fc2}
+\end{figure}
+
 
 \section{Question 3}
 
