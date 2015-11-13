@@ -1,4 +1,4 @@
-\documentclass[a4paper]{article}
+\documentclass[twocolumn]{article}
 
 % Set for specific document
 \def\DOCTITLE{CSC3121 Distributed Systems Coursework 1}
@@ -44,6 +44,72 @@
 
 \begin{document}
 
-Put work here.
+\section{Question 1}
+
+The correctness of the system as defined by the specification can be summarised
+as follows: a fire engine should be dispatched if and only if there is at least
+one \textit{fire!} message received by computer C which is not followed by a
+\texttt{fire out} message $2d + e$ time units later. This being the case depends
+on the following:
+
+\begin{enumerate}
+  \item[1] For a \textit{fire!} message $M_{f}$ and \textit{fire out} message
+           $M_{o}$, the relation $M_{f} \Rightarrow M_{o}$ must hold.
+  \item[2] In the event of multiple fires, \textit{fire out} messages should
+           only negate the corresponding \textit{fire!} message and not those
+           caused by other fires.
+\end{enumerate}
+
+Both of these conditions can be violated in the current system.
+
+\subsection{Violation of condition 1}
+
+This describes the case where the \textit{fire!} message takes the maximum
+transfer time ($e$) between computer A and C and all other messages
+(\textit{fire!} from A to B, \textit{fire out} from B to C) and events (the fire
+being extinguished) happen in a significantly shorter time.
+
+This results in the \textit{fire out} message for a given fire arriving before
+the corresponding \textit{fire!} message.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.4\textwidth]{out/failure_case_1.eps}
+  \caption{Violation of condition 1}
+  \label{fig:failure_case_1}
+\end{figure}
+
+In this case the system fails as a fire engine will be dispatched when the fire
+has already been extinguished by the sprinkler system.
+
+\subsection{Violation of condition 2}
+
+This describes the case when between computer B sending a \textit{fire out}
+message ($E1$) and the same message being received by computer C, a new
+\textit{fire!} message ($F2$) is sent by computer A which is received at
+computer C before $E1$.
+
+In this case the last message received by the fire service computer C will be
+\textit{fire out} and will have arrived within $2d + e$ time units of the last
+\textit{fire!} message ($F2$).
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.4\textwidth]{out/failure_case_2.eps}
+  \caption{Violation of condition 2}
+  \label{fig:failure_case_2}
+\end{figure}
+
+In this case the system has failed as $F2$ signals a fire that cannot be
+extinguished by the sprinkler system yet the fire service will not dispatch a
+fire engine.
+
+\section{Question 2}
+
+TODO
+
+\section{Question 3}
+
+TODO
 
 \end{document}
