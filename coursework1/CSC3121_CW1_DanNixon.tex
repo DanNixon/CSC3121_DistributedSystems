@@ -63,6 +63,7 @@ on the following:
 Both of these conditions can be violated in the current system.
 
 \subsection{Violation of condition 1}
+\label{sec:violation_of_condition_1}
 
 This describes the case where the \textit{fire!} message takes the maximum
 transfer time ($e$) between computer A and C and all other messages
@@ -85,6 +86,7 @@ In this case the system fails as a fire engine will be dispatched when the fire
 has already been extinguished by the sprinkler system.
 
 \subsection{Violation of condition 2}
+\label{sec:violation_of_condition_2}
 
 This describes the case when between computer B sending a \textit{fire out}
 message ($E1$) and the same message being received by computer C, a new
@@ -143,11 +145,29 @@ will have already received more recent information than that described by $m$.
   \label{fig:logical_clocks}
 \end{figure}
 
-TODO: table and correctness
+In this proposed system the clock starting value of computer A ($C_{a}$) is set
+to 10 and the increment ($I_{a}$) set to 10. The starting values of computers B
+and C ($C_{b}$ and $C_{c}$) are both set to 0 and the increments ($I_{b}$ and
+$I_{c}$) are set to 1.
+
+This is to ensure that timestamps for subsequent fires are significantly larger
+than the current local logical clocks on both computers B and C for the purpose
+for the purpose of demonstration.
+
+TODO: correctness
 
 \subsection{Condition 1}
 
-TODO
+Figure \ref{fig:logical_clocks_fc1} demonstrates how the new system handles the
+failure case described in section \ref{sec:violation_of_condition_1}.
+
+In this case the \textit{fire!} message $F1$ does not reach computer C until
+after the \textit{fire out} from computer B has already been received.
+
+As a \textit{fire out} message will always have a higher timestamp than the
+\textit{fire!} message indicating the detection of he same fire, the
+\textit{fire!} message can safely be discarded assuming its timestamp is less
+than the local logical clock of computer C ($C_{c}$).
 
 \begin{figure}[h!]
   \centering
@@ -158,6 +178,14 @@ TODO
 
 \subsection{Condition 2}
 
+Figure \ref{fig:logical_clocks_fc2} demonstrates how the new system handles the
+failure case described in section \ref{sec:violation_of_condition_2}.
+
+In this case the \textit{fire out} message $E1$ does not reach computer C until
+after another \textit{fire!} message $F2$ has already been received by computer
+C indicating the detection of anew fire that cannot be extinguished by the
+sprinklers.
+
 TODO
 
 \begin{figure}[h!]
@@ -166,7 +194,6 @@ TODO
   \caption{Possible violation of condition 2}
   \label{fig:logical_clocks_fc2}
 \end{figure}
-
 
 \section{Question 3}
 
