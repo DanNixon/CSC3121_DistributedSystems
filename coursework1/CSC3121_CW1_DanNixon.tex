@@ -154,7 +154,9 @@ This is to ensure that timestamps for subsequent fires are significantly larger
 than the current local logical clocks on both computers B and C for the purpose
 for the purpose of demonstration.
 
-TODO: correctness
+\subsection{Correctness of proposed design}
+
+TODO
 
 \subsection{Condition 1}
 
@@ -165,7 +167,7 @@ In this case the \textit{fire!} message $F1$ does not reach computer C until
 after the \textit{fire out} from computer B has already been received.
 
 As a \textit{fire out} message will always have a higher timestamp than the
-\textit{fire!} message indicating the detection of he same fire, the
+\textit{fire!} message indicating the detection of the same fire, the
 \textit{fire!} message can safely be discarded assuming its timestamp is less
 than the local logical clock of computer C ($C_{c}$).
 
@@ -183,10 +185,12 @@ failure case described in section \ref{sec:violation_of_condition_2}.
 
 In this case the \textit{fire out} message $E1$ does not reach computer C until
 after another \textit{fire!} message $F2$ has already been received by computer
-C indicating the detection of anew fire that cannot be extinguished by the
+C indicating the detection of a new fire that cannot be extinguished by the
 sprinklers.
 
-TODO
+Here the \textit{fire out} message $E1$ is discarded doe to the \textit{fire!}
+message $F2$ being received by computer C first, thus setting the local logical
+clock of computer C to a higher timestamp then message $E1$.
 
 \begin{figure}[h!]
   \centering
@@ -194,6 +198,12 @@ TODO
   \caption{Possible violation of condition 2}
   \label{fig:logical_clocks_fc2}
 \end{figure}
+
+Discarding a \textit{fire out} message in this was can be considered safe as
+providing that the last message to be received by computer C is a \textit{fire!}
+message originating from the detection of a new fire that started after the
+first was extinguished then a fire engine will still be required (unless the
+delivery of another \textit{fire out} message follows).
 
 \section{Question 3}
 
