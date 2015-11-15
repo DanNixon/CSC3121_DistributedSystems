@@ -14,6 +14,7 @@
 \usepackage{scrextend}
 \usepackage{titlesec}
 \usepackage{fancyhdr}
+\usepackage{amssymb}
 
 % Handle graphics correctly
 \ifx\pdftexversion\undefined
@@ -49,7 +50,7 @@
 The correctness of the system as defined by the specification can be summarised
 as follows: a fire engine should be dispatched if and only if there is at least
 one \textit{fire!} message received by computer C which is not followed by a
-\texttt{fire out} message $2d + e$ time units later. This being the case depends
+\textit{fire out} message $2d + e$ time units later. This being the case depends
 on the following:
 
 \begin{enumerate}
@@ -120,7 +121,7 @@ clock of computer C.
 A brief overview of the operation of such a system is shown in figure
 \ref{fig:logical_clocks}.
 
-In this design computer A sends \texttt{fire!} messages to computers B and C
+In this design computer A sends \textit{fire!} messages to computers B and C
 when it receives a signal from a fire detection sensor (it does not receive
 messages from either computer).
 
@@ -156,7 +157,43 @@ for the purpose of demonstration.
 
 \subsection{Correctness of proposed design}
 
-TODO
+The correctness of this system can be demonstrated by examining the possible
+cases where a message can arrive at computer C out of the intended order.
+
+These cases are listed below, the notation \textit{fire!} $\rhd$ \textit{fire
+out} denotes an out of order \textit{fire out} message being received when the
+last valid message received was \textit{fire!}.
+
+\begin{description}
+  \item[\textit{fire!} $\rhd$ \textit{fire!}] \hfill \\
+    No change to state of fire service as they have already been alerted to the
+    presence of a fire in the last \textit{fire!} message.
+
+  \item[\textit{fire!} $\rhd$ \textit{fire out}] \hfill \\
+    As the \textit{fire out} message will have a lower timestamp to the last
+    received \textit{fire!} message it can be assumed hat the two messages are
+    associated with two separate fires (one of which has been extinguished and
+    the other is still ongoing).
+
+    Therefore the \textit{fire out} message can be discarded as the fire service
+    will still need to respond to the more recent fire, alerted to by the last
+    received \textit{fire!} message.
+
+  \item[\textit{fire out} $\rhd$ \textit{fire out}] \hfill \\
+    No change to state of fire service as they have already been alerted to the
+    fire being extinguished in the last \textit{fire out} message.
+    The second, out of order \textit{fire out} message with a lower timestamp
+    is therefore safe to discard.
+
+  \item[\textit{fire out} $\rhd$ \textit{fire!}] \hfill \\
+    As the \textit{fire out} message has a higher timestamp than the
+    \textit{fire!} message it can be assumed that the \textit{fire!} message
+    could be from any number of fires that started before the \textit{fire out}
+    message was sent.
+    In this case the \textit{fire!} message can be safely ignored as the fire it
+    is alerting to has already been extinguished, alerted to by the last
+    received \textit{fire out!} message.
+\end{description}
 
 \subsection{Condition 1}
 
