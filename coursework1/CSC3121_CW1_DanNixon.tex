@@ -112,6 +112,7 @@ extinguished by the sprinkler system yet the fire service will not dispatch a
 fire engine.
 
 \section{Question 2}
+\label{sec:question_2}
 
 The use of logical clocks in the system allows the order of messages to be
 tracked within the system, this can be used by computer C to determine the
@@ -244,6 +245,75 @@ delivery of another \textit{fire out} message follows).
 
 \section{Question 3}
 
-TODO
+The design described in section \ref{sec:question_2} can be used with physical
+clocks without modification on the assumption that the clocks are synchronised
+within an error, $\epsilon$, that satisfies the condition:
+
+\begin{equation}
+  \epsilon < min((1-k) \mu_{m}, \mu_{f})
+  \label{eq:epsilon}
+\end{equation}
+
+where $\mu_{m}$ is the minimum time a message can take to be transferred between
+two computers and $\mu_{f}$ is the minimum time between the fire sprinklers
+being activated and the detection of all fires being extinguished.
+
+This assumption allows the strong clock condition to hold in the system that
+includes both electronic messages between computers and the fire element of the
+system:
+
+\begin{equation}
+  \forall a, b \in S : \mathrm{if} \: a \rightarrow b : C(a) < C(b)
+  \label{eq:strong_clock_condition}
+\end{equation}
+
+This condition ensures that all messages arrive with the same happens before
+relation as was provided in the design using logical clocks.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.4\textwidth]{out/physical_clocks.eps}
+  \caption{Use of physical clocks ($\epsilon = 0$)}
+  \label{fig:physical_clocks}
+\end{figure}
+
+All examples use $\epsilon = 0$, while this is not feasible in a real world
+system it can be used in this example as equation \ref{eq:epsilon} guarantees
+that any two clocks cannot differ by more than that shortest time taken for a
+message transfer (both inside and outside of the electronic system, i.e.
+including the external fire element).
+
+\subsection{Condition 1}
+
+Figure \ref{fig:physical_clocks_fc1} demonstrates the use of physical clocks
+under a failure condition for condition 1 described in section
+\ref{sec:violation_of_condition_1}.
+
+In this case the late \textit{fire!} message received by computer C still has a
+timestamp lower than the local real time clock on computer C so is discarded.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.4\textwidth]{out/physical_clocks_fc1.eps}
+  \caption{Use of physical clocks under failure condition 1 ($\epsilon = 0$)}
+  \label{fig:physical_clocks_fc1}
+\end{figure}
+
+\subsection{Condition 2}
+
+Figure \ref{fig:physical_clocks_fc2} demonstrates the use of physical clocks
+under a failure condition for condition 2 described in section
+\ref{sec:violation_of_condition_2}.
+
+Here the \textit{fire out} message is still being received with a timestamp less
+than the local real time clock of computer C, so will be discarded, maintaining
+correct operation.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.4\textwidth]{out/physical_clocks_fc2.eps}
+  \caption{Use of physical clocks under failure condition 2 ($\epsilon = 0$)}
+  \label{fig:physical_clocks_fc2}
+\end{figure}
 
 \end{document}
