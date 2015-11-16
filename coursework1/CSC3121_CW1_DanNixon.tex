@@ -196,6 +196,47 @@ last valid message received was \textit{fire!}.
     received \textit{fire out!} message.
 \end{description}
 
+\subsection{The value of $I_{a}$}
+
+The value by which the local logical clock of computer A increments is important
+to the correctness of this proposed design, figure \ref{fig:logical_clocks_ia_1}
+demonstrates how with $I_{a} = 1$ this system fails by discarding valid
+\textit{fire!} messages.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.4\textwidth]{out/logical_clocks_ia_1.eps}
+  \caption{Proposed solution failure with $I_{a} = 1$}
+  \label{fig:logical_clocks_ia_1}
+\end{figure}
+
+This occurs as the clock of computer A does not allow for the clock of computer
+C being incremented by \textit{fire out} messages from computer C.
+
+This is resolved by using a larger $I_{a}$ on computer A than on the other two
+computers, as demonstrated in figure \ref{fig:logical_clocks_ia_2}.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.4\textwidth]{out/logical_clocks_ia_2.eps}
+  \caption{Proposed solution with $I_{a} = 10$}
+  \label{fig:logical_clocks_ia_2}
+\end{figure}
+
+This defines the following condition on $I_{a}$:
+
+\begin{equation}
+  I_{a} > 2
+  \label{eq:ia_condition}
+\end{equation}
+
+This is derived form that fact that two events will happen on computer B between
+the \textit{fire!} message being sent by computer A and the \textit{fire out}
+message being received by computer C (in the event that the fire is
+extinguished).
+
+In all other demonstrations in the design $I_{a} = 10$.
+
 \subsection{Condition 1}
 
 Figure \ref{fig:logical_clocks_fc1} demonstrates how the new system handles the
