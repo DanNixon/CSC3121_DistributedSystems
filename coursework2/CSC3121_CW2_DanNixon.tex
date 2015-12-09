@@ -1,4 +1,4 @@
-\documentclass[a4paper]{article}
+\documentclass[twocolumn]{article}
 
 % Set for specific document
 \def\DOCTITLE{CSC3121 Coursework 2: Total Order Design}
@@ -34,7 +34,7 @@
 \lfoot{\DOCAUTHOR}
 
 % New page for each section
-\newcommand{\sectionbreak}{\clearpage}
+% \newcommand{\sectionbreak}{\clearpage}
 
 % Set header and footer sizes
 \renewcommand{\headrulewidth}{0.4pt}
@@ -45,6 +45,37 @@
 \begin{document}
 
 \section{Design}
+
+The design used for the system is an adaptation of the total order example given
+in the lecture notes, an example of a complete message transmit and receive
+operation is shown in figure \ref{fig:example}.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.5\textwidth]{out/example.1}
+  \caption{Example of message transmission}
+  \label{fig:example}
+\end{figure}
+
+The following shorthand will be used in the descriptions:
+
+\begin{description}
+  \item[$<-$] \hfill \\
+    A message sent from this process
+  \item[$->$] \hfill \\
+    A message received by this process
+  \item[$M(r)(i,j)$] \hfill \\
+    Message requesting the transmission of of a message from process $i$ to
+    process $j$.
+  \item[$M(ar)(i)$] \hfill \\
+    Message acknowledging that process $i$ has received the request for
+    transmission.
+  \item[$M(p)(i,j)$] \hfill \\
+    Message containing message payload from process $i$ to process $j$.
+  \item[$M(ap)(i,j)$] \hfill \\
+    Message acknowledging that process $j$ has completed receiving the message
+    payload from process $i$.
+\end{description}
 
 \subsection{Message sending}
 
