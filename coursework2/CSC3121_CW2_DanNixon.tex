@@ -14,6 +14,7 @@
 \usepackage{scrextend}
 \usepackage{titlesec}
 \usepackage{fancyhdr}
+\usepackage[section]{placeins}
 
 % Handle graphics correctly
 \ifx\pdftexversion\undefined
@@ -45,17 +46,11 @@
 \begin{document}
 
 \section{Design}
+\label{sec:design}
 
 The design used for the system is an adaptation of the total order example given
 in the lecture notes, an example of a complete message transmit and receive
-operation is shown in figure \ref{fig:example}.
-
-\begin{figure}[h!]
-  \centering
-  \includegraphics[width=0.5\textwidth]{out/example.1}
-  \caption{Example of message transmission}
-  \label{fig:example}
-\end{figure}
+operation is shown in section \ref{sec:example}.
 
 The following shorthand will be used in the descriptions:
 
@@ -64,32 +59,206 @@ The following shorthand will be used in the descriptions:
     A message sent from this process
   \item[$->$] \hfill \\
     A message received by this process
-  \item[$M(r)(i,j)$] \hfill \\
+  \item[$M(t)(r)(i,j)$] \hfill \\
     Message requesting the transmission of of a message from process $i$ to
     process $j$.
-  \item[$M(ar)(i)$] \hfill \\
+  \item[$M(t)(ar)(i)$] \hfill \\
     Message acknowledging that process $i$ has received the request for
     transmission.
-  \item[$M(p)(i,j)$] \hfill \\
+  \item[$M(t)(p)(i,j)$] \hfill \\
     Message containing message payload from process $i$ to process $j$.
-  \item[$M(ap)(i,j)$] \hfill \\
+  \item[$M(t)(ap)(i,j)$] \hfill \\
     Message acknowledging that process $j$ has completed receiving the message
     payload from process $i$.
 \end{description}
 
-\subsection{Message sending}
+In all messages $t$ denotes the timestamp given to the message by the local
+logical clock of the transmitting process.
 
-TODO
+In all cases when a message is received with a timestamp $t$ that is greater
+then the local logical clock of process $P_{i}$, the clock of $P_{i}$ is set to
+$t + 1$.
+
+Unless otherwise states all logical clocks have the initial value of 0 and
+increment by 1 per operation.
+
+\subsection{Message sending}
+\label{sec:sending}
+
+When a process wants to send a message to any number of other processes it first
+sends a request message to every process (broadcast message) in the system (and
+keeps a copy  in the local message queue), the payload of which contains the ID
+of the process that wants to transmit and a list of the processes that will
+receive the message.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.15\textwidth]{out/sending_1.1}
+  \caption{Process sends transmission request messages}
+  \label{fig:sending_1}
+\end{figure}
+\FloatBarrier
+
+The process then waits for a response from all other processes which
+acknowledges the request, acknowledgement messages are added to the sending
+process local message queue as they are received.
+
+All acknowledgements received must have a timestamp greater than that of the
+request message.
+
+Once all acknowledgements have arrived the process will then send a message
+containing the intended payload to all processes the payload is to be delivered
+to.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.15\textwidth]{out/sending_2.1}
+  \caption{Process receives acknowledgements and sends payload}
+  \label{fig:sending_2}
+\end{figure}
+\FloatBarrier
+
+The process then waits again for each recipient process to acknowledge the
+message being received, once all acknowledgements have been received the sending
+process knows that the messages have been delivered successfully to all
+recipient processes and removes all messages from its message queue.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.15\textwidth]{out/sending_3.1}
+  \caption{Process receives payload acknowledgements and clears local message
+           queue}
+  \label{fig:sending_3}
+\end{figure}
+\FloatBarrier
 
 \subsection{Message receiving}
+\label{sec:receiving}
 
-TODO
+When a process receives a message transmission request  the message is added
+to the process local message queue and an acknowledgement message sent to the
+process that sent to request.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.15\textwidth]{out/receiving_1.1}
+  \caption{Received request message and sent acknowledgement}
+  \label{fig:receiving_1}
+\end{figure}
+\FloatBarrier
+
+The process then waits for further messages, in the case where this process is a
+recipient of the message then the next expected message is the payload,
+otherwise the next message(s) should be payload acknowledgements for each of the
+recipients.
+
+For this example the process is a recipient.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.15\textwidth]{out/receiving_2.1}
+  \caption{Receiving the message payload}
+  \label{fig:receiving_2}
+\end{figure}
+\FloatBarrier
+
+Once the payload has been received the payload acknowledgement message will be
+sent to all processes, if this process was the only recipient then the receiving
+is complete and the local process queue can be cleared and the message payload
+passed from the total order instance to the process..
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.15\textwidth]{out/receiving_3.1}
+  \caption{Sending the message payload acknowledgement}
+  \label{fig:receiving_3}
+\end{figure}
+\FloatBarrier
+
+If there are multiple recipients then this process will wait until it received
+a payload acknowledgement from every other recipient listed in the initial
+request message, once all acknowledgements have been received then the
+transmission will be considered successful and the local message queue cleared
+and the message payload passed from the total order instance to the process.
+
+Note that the transmission of the final payload acknowledgement message ensures
+that the logical clocks of all processes in the system are synchronised, as the
+final acknowledgement message will always have the largest timestamp assuming
+all total order instances respect rules 1 and two listed in section
+\ref{sec:delivery}.
 
 \subsection{Message delivery}
+\label{sec:delivery}
+
+Message delivery is assured through the following rules that each total order
+instance must abide by:
+
+\begin{enumerate}
+  \item[1]
+    Once a process receives a message transmission request it may not
+    attempt to transmit a message until all payload acknowledgement messages have
+    been received.
+  \item[2]
+    A sending process must not transmit the payload until all transmission
+    request acknowledgement messages have been received.
+  \item[3]
+    Should a process receive multiple request messages it must acknowledge the
+    message with the lowest timestamp first (keeping the other messages in the
+    message queue).
+    If the timestamps are identical then priority is given to messages sent by
+    processes with a lower process number.
+\end{enumerate}
+
+Together, these rules ensure that both conditions hold by ensuring that delivery
+of identical messages (messages with the same payload, sent from a single
+process and received by multiple processes in the system) happen simultaneously
+(by logical clock time) while delivery of distinct messages (messages sent at
+different logical clock times) can never happen happen either at the same time
+or out of the transmission order (i.e. they cannot break the happened before
+relation).
+
+\subsection{Example}
+\label{sec:example}
+
+The following figures show an example of a single message transmission from $P1$
+to $P3$.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.5\textwidth]{out/example_1.1}
+  \caption{Message transmission request and acknowledgement}
+  \label{fig:example_1}
+\end{figure}
+\FloatBarrier
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.5\textwidth]{out/example_2.1}
+  \caption{Message payload transmission}
+  \label{fig:example_2}
+\end{figure}
+\FloatBarrier
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.5\textwidth]{out/example_3.1}
+  \caption{Message payload acknowledgement}
+  \label{fig:example_3}
+\end{figure}
+\FloatBarrier
+
+\section{Correctness}
+\label{sec:correctness}
+
+This section aims to prove the correctness of the design described in section
+\ref{sec:design} through the use of examples covering several scenarios the
+system may be subjected to.
+
+\section{Multiple messages to one recipient}
 
 TODO
 
-\section{Correctness}
+\section{Multiple messages to multiple recipients}
 
 TODO
 
