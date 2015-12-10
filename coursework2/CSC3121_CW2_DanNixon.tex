@@ -165,7 +165,7 @@ For this example the process is a recipient.
 Once the payload has been received the payload acknowledgement message will be
 sent to all processes, if this process was the only recipient then the receiving
 is complete and the local process queue can be cleared and the message payload
-passed from the total order instance to the process..
+passed from the total order instance to the process.
 
 \begin{figure}[h!]
   \centering
@@ -180,6 +180,11 @@ a payload acknowledgement from every other recipient listed in the initial
 request message, once all acknowledgements have been received then the
 transmission will be considered successful and the local message queue cleared
 and the message payload passed from the total order instance to the process.
+
+A message receiving operation is complete from the point of view of a receiving
+process when it has sent its payload acknowledgement and in the case of multiple
+recipients, it has received the payload acknowledgements from every other
+recipient.
 
 Note that the transmission of the final payload acknowledgement message ensures
 that the logical clocks of all processes in the system are synchronised, as the
@@ -216,6 +221,11 @@ process and received by multiple processes in the system) happen simultaneously
 different logical clock times) can never happen happen either at the same time
 or out of the transmission order (i.e. they cannot break the happened before
 relation).
+
+A message delivery is complete from the point of view of a process that is not
+directly involved in the transmission (i.e. not the sender nor a recipient) when
+a payload acknowledgement message is received from every recipient that was
+listed in the original message transfer request.
 
 \subsection{Example}
 \label{sec:example}
@@ -363,6 +373,97 @@ system fulfils condition 1.
 
 \subsection{Multiple messages to multiple recipients}
 
-TODO
+In this example multiple messages are sent to a common subset of recipients at
+the same logical clock time, in this case the order of message delivery is not
+guaranteed as this depends on the sending processes (specifically their process
+IDs), however in order to meet condition 2 the order of delivery must be common
+between all recipients.
+
+Here four messages will be sent: $P1$ will send message $m_{1}$ to processes
+$P2$ and $P3$, $P4$ will send message $m_{2}$ to the same recipients.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.5\textwidth]
+                  {out/multiplemessagesmultiplerecipients_1.1}
+  \caption{Initial requests}
+  \label{fig:multiplemessagesmultiplerecipients_1}
+\end{figure}
+\FloatBarrier
+
+Since both message transmission requests have the same timestamp priority is
+given to process $P1$ due to its lower process ID. Therefore the request to
+transmit $m_{1}$ is acknowledged first.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.5\textwidth]
+                  {out/multiplemessagesmultiplerecipients_2.1}
+  \caption{$m_{1}$ transmission request acknowledgements}
+  \label{fig:multiplemessagesmultiplerecipients_2}
+\end{figure}
+\FloatBarrier
+
+Once the transmission request acknowledgements have been received the payload of
+message $m_{1}$ is sent to $P2$ and $P3$ and acknowledged by both recipient
+processes.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.5\textwidth]
+                  {out/multiplemessagesmultiplerecipients_3.1}
+  \caption{Transmission and acknowledgement of $m_{1}$ payload}
+  \label{fig:multiplemessagesmultiplerecipients_3}
+\end{figure}
+\FloatBarrier
+
+At this point the payload of $m_{1}$ is delivered to both recipient processes
+by the total order instance and the message queues clears of messages relating
+to $m_{1}$ leaving the transmission requests for $m_{2}$.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.5\textwidth]
+                  {out/multiplemessagesmultiplerecipients_4.1}
+  \caption{Delivery of $m_{1}$ complete}
+  \label{fig:multiplemessagesmultiplerecipients_4}
+\end{figure}
+\FloatBarrier
+
+As it is now the only transmission request message in the local message queues
+the acknowledgement for $m_{2}$ is sent by all processes (except the sending
+process, $P4$).
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.5\textwidth]
+                  {out/multiplemessagesmultiplerecipients_5.1}
+  \caption{$m_{2}$ transmission request acknowledgements}
+  \label{fig:multiplemessagesmultiplerecipients_5}
+\end{figure}
+\FloatBarrier
+
+Once the transmission request acknowledgements have been received the payload of
+message $m_{2}$ is sent and the recipient processes then send the payload
+acknowledgement messages to all processes in the system.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.5\textwidth]
+                  {out/multiplemessagesmultiplerecipients_6.1}
+  \caption{Transmission and acknowledgement of $m_{2}$ payload}
+  \label{fig:multiplemessagesmultiplerecipients_6}
+\end{figure}
+\FloatBarrier
+
+Finally the message payload is delivered to the recipient process by the total
+order instances and the message queues are cleared of messages relating to
+$m_{2}$ leaving an empty queue on each process in the system.
+
+This example demonstrates how only one unique message may ever be delivered
+simultaneously, this is guaranteed by rules 1 and 2 described in section
+\ref{sec:delivery} which ensure that processes cannot send any message payloads
+until they have received all required acknowledgements from every other process
+in the system.
 
 \end{document}
