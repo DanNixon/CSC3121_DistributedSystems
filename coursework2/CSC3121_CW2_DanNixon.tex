@@ -254,79 +254,114 @@ This section aims to prove the correctness of the design described in section
 \ref{sec:design} through the use of examples covering several scenarios the
 system may be subjected to.
 
-\section{Multiple messages to one recipient}
+\subsection{Multiple messages to one recipient}
 
-TODO
+This example demonstrates the case where two messages are sent to a single
+recipient where the two sending processes have different local logical times.
+
+In this case the message $m_{1}$ sent from process $P1$ to $P3$ and the message
+$m_{2}$ from $P4$ to $P3$ have the happened before relation: $m_{1} \Rightarrow
+m_{2}$.
+
+This demonstrates the correct operation of the priority negotiation logic in
+cases where the messages arrive at processes out of their priority order. This
+is shown in figure \ref{fig:multiplemessagesonerecipient_1} where the two
+non-sending processes ($P2$ and $P3$) receive the transmission request messages
+in a different order and still acknowledge the correct message.
 
 \begin{figure}[h!]
   \centering
   \includegraphics[width=0.5\textwidth]{out/multiplemessagesonerecipient_1.1}
-  \caption{}
+  \caption{Initial requests}
   \label{fig:multiplemessagesonerecipient_1}
 \end{figure}
 \FloatBarrier
 
-TODO
+When the request messages have been received the first message to be
+acknowledged is the request for $P1$ to transmit to $P3$ as $P1$ has a lower
+timestamp (1) to $P4$ (5).
 
 \begin{figure}[h!]
   \centering
   \includegraphics[width=0.5\textwidth]{out/multiplemessagesonerecipient_2.1}
-  \caption{}
+  \caption{Acknowledgment of $m_{1}$}
   \label{fig:multiplemessagesonerecipient_2}
 \end{figure}
 \FloatBarrier
 
-TODO
+Next $P1$ transmits the payload to $P3$ and when it is received $P3$ sends the
+acknowledge message to all processes.
 
 \begin{figure}[h!]
   \centering
   \includegraphics[width=0.5\textwidth]{out/multiplemessagesonerecipient_3.1}
-  \caption{}
+  \caption{Transmission and acknowledgement of $m_{1}$ payload}
   \label{fig:multiplemessagesonerecipient_3}
 \end{figure}
 \FloatBarrier
 
-TODO
+Note that process $P3$ received the payload of message $m_{1}$ at local logical
+time 5.
+
+When the payload acknowledgement is received all process clear their local
+message queues of the request and acknowledge messages relating to the completed
+request.
 
 \begin{figure}[h!]
   \centering
   \includegraphics[width=0.5\textwidth]{out/multiplemessagesonerecipient_4.1}
-  \caption{}
+  \caption{Clear local message queues}
   \label{fig:multiplemessagesonerecipient_4}
 \end{figure}
 \FloatBarrier
 
-TODO
+The total order instance of $P3$ then sends the message to the process and
+removes the payload message from the local message queue.
 
 \begin{figure}[h!]
   \centering
   \includegraphics[width=0.5\textwidth]{out/multiplemessagesonerecipient_5.1}
-  \caption{}
+  \caption{Acknowledge $m_{2}$ request}
   \label{fig:multiplemessagesonerecipient_5}
 \end{figure}
 \FloatBarrier
 
-TODO
+Next the acknowledgement process begins again for the transmission request
+from process $P4$ to $P3$ and after receiving all request acknowledgements $P4$
+transmits the payload message to $P3$.
 
 \begin{figure}[h!]
   \centering
   \includegraphics[width=0.5\textwidth]{out/multiplemessagesonerecipient_6.1}
-  \caption{}
+  \caption{Transmit $m_{2}$ payload}
   \label{fig:multiplemessagesonerecipient_6}
 \end{figure}
 \FloatBarrier
 
-TODO
+Note that process $P3$ received the payload of message $m_{2}$ at local logical
+time 11.
+
+Once the message is received the payload acknowledgement messages are sent to
+all processes by $P3$.
 
 \begin{figure}[h!]
   \centering
   \includegraphics[width=0.5\textwidth]{out/multiplemessagesonerecipient_7.1}
-  \caption{}
+  \caption{Acknowledge $m_{2}$ payload}
   \label{fig:multiplemessagesonerecipient_7}
 \end{figure}
 \FloatBarrier
 
-\section{Multiple messages to multiple recipients}
+At this point the local message queues are cleared, the payload delivered to
+process $P3$ by the total order instance and all processes in the system will
+contain empty message queues.
+
+As the timestamp of the delivery of message $m_{1}$ (5) is less than the
+timestamp of delivery of $m_{2}$ (11), the delivery of the two messages
+maintains the happened before relation of their transmission, therefore the
+system fulfils condition 1.
+
+\subsection{Multiple messages to multiple recipients}
 
 TODO
 
